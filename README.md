@@ -24,8 +24,13 @@ flutter analyze        # should print "No issues found!"
 
 ```
 lib/
-├── main.dart   # Bootstrap: runApp() + MyApp (MaterialApp, theme)
-└── menu.dart   # MyHomePage (StatelessWidget), InfoCard, ItemHomepage, ItemCard
+├── main.dart                 # Bootstrap: runApp() + MyApp (MaterialApp, theme)
+├── screens/
+│   ├── menu.dart             # MyHomePage, InfoCard, ItemHomepage model
+│   └── project_form.dart     # ProjectFormPage (StatefulWidget form)
+└── widgets/
+    ├── left_drawer.dart      # LeftDrawer navigation menu
+    └── project_card.dart     # ItemCard (coloured button + navigation)
 ```
 
 ## Weekly Progress
@@ -34,6 +39,7 @@ lib/
 |---|---|---|
 | Tutorial 08 | Basic Flutter | Created the project, moved `MyHomePage` into `menu.dart`, made it a `StatelessWidget`, added `InfoCard`, `ItemCard` and the SnackBar on tap |
 | Assignment 7 | Basic Flutter | Showed my own identity (NPM, full name, class), gave each action button its own colour through a `color` field on `ItemHomepage`, wrote this README |
+| Tutorial 09 | Navigation, Layouts, Forms | Added a `LeftDrawer` (Home / Add Project), `ProjectFormPage` with validated `TextFormField`s and a category dropdown, a dialog showing the submitted data, `Navigator.push` from the Add Project card, and split files into `screens/` and `widgets/` |
 
 ---
 
