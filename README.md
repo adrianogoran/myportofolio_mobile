@@ -127,6 +127,9 @@ lib/
 
    These need a **hot restart**. A **full restart** is needed for native or platform changes: editing `pubspec.yaml` to add plugins, changing Android or iOS files (Gradle, `AndroidManifest.xml`, `Info.plist`), or changing assets. Hot reload and hot restart also only work in debug mode, not in profile or release builds.
 
+
+## AI Usage Disclosure
+- I didnt use AI in this task, i referred to the tutorial files and documentation for the button and item cards.
 ---
 
 ### Assignment 8
@@ -167,4 +170,4 @@ lib/
 ---
 
 ## AI Usage Disclosure
-- I didnt use AI in this task, i referred to the tutorial files and documentation for the button and item cards.
+- I didnt use AI in this task, i referred to the tutorial files and documentation for education form and the rest of the assignment
