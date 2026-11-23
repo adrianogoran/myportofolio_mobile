@@ -1,6 +1,5 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/screens/menu.dart';
-import 'package:myportofolio_mobile/screens/project_form.dart';
 
 class ItemCard extends StatelessWidget {
   final ItemHomepage item;
@@ -22,14 +21,11 @@ class ItemCard extends StatelessWidget {
               SnackBar(content: Text("You pressed the ${item.name} button!")),
             );
 
-          // Navigate to the appropriate screen
-          if (item.name == "Add Project") {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ProjectFormPage(),
-              ),
-            );
+          // Navigate to this card's screen, if it has one. push() keeps
+          // the home screen below it, so the system Back button returns.
+          final destination = item.destination;
+          if (destination != null) {
+            Navigator.push(context, MaterialPageRoute(builder: destination));
           }
         },
         child: Container(
@@ -38,11 +34,7 @@ class ItemCard extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  item.icon,
-                  color: Colors.white,
-                  size: 30.0,
-                ),
+                Icon(item.icon, color: Colors.white, size: 30.0),
                 const Padding(padding: EdgeInsets.all(3)),
                 Text(
                   item.name,

@@ -1,4 +1,6 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:myportofolio_mobile/screens/education_form.dart';
+import 'package:myportofolio_mobile/screens/project_form.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
 import 'package:myportofolio_mobile/widgets/project_card.dart';
 
@@ -11,7 +13,18 @@ class MyHomePage extends StatelessWidget {
 
   final List<ItemHomepage> items = [
     ItemHomepage("View Projects", Icons.folder, Colors.blue),
-    ItemHomepage("Add Project", Icons.add_circle, Colors.green),
+    ItemHomepage(
+      "Add Project",
+      Icons.add_circle,
+      Colors.green,
+      destination: (context) => const ProjectFormPage(),
+    ),
+    ItemHomepage(
+      "Add Education",
+      Icons.school,
+      Colors.purple,
+      destination: (context) => const EducationFormPage(),
+    ),
     ItemHomepage("Logout", Icons.logout, Colors.red),
   ];
 
@@ -21,10 +34,7 @@ class MyHomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'MyPortfolio',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -99,10 +109,7 @@ class InfoCard extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Text(
-              title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8.0),
             Text(content),
           ],
@@ -114,12 +121,17 @@ class InfoCard extends StatelessWidget {
 
 /// Data model for a single action button on the home page.
 ///
-/// Each item carries its own [color], so [ItemCard] can style itself
-/// without any if-else chains on the item name.
+/// Each item carries its own [color] and an optional [destination],
+/// so [ItemCard] can style itself and navigate without any if-else
+/// chains on the item name.
 class ItemHomepage {
   final String name;
   final IconData icon;
   final Color color;
 
-  ItemHomepage(this.name, this.icon, this.color);
+  /// Builds the screen opened with `Navigator.push()` when the card is
+  /// tapped. `null` means the card only shows a SnackBar.
+  final WidgetBuilder? destination;
+
+  ItemHomepage(this.name, this.icon, this.color, {this.destination});
 }
