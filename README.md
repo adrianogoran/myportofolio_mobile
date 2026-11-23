@@ -27,9 +27,10 @@ lib/
 ├── main.dart                 # Bootstrap: runApp() + MyApp (MaterialApp, theme)
 ├── screens/
 │   ├── menu.dart             # MyHomePage, InfoCard, ItemHomepage model
-│   └── project_form.dart     # ProjectFormPage (StatefulWidget form)
+│   ├── project_form.dart     # ProjectFormPage (StatefulWidget form)
+│   └── education_form.dart   # EducationFormPage (dates, GPA, URL validation)
 └── widgets/
-    ├── left_drawer.dart      # LeftDrawer navigation menu
+    ├── left_drawer.dart      # LeftDrawer navigation menu (Home / Add Project / Add Education)
     └── project_card.dart     # ItemCard (coloured button + navigation)
 ```
 
@@ -40,6 +41,7 @@ lib/
 | Tutorial 08 | Basic Flutter | Created the project, moved `MyHomePage` into `menu.dart`, made it a `StatelessWidget`, added `InfoCard`, `ItemCard` and the SnackBar on tap |
 | Assignment 7 | Basic Flutter | Showed my own identity (NPM, full name, class), gave each action button its own colour through a `color` field on `ItemHomepage`, wrote this README |
 | Tutorial 09 | Navigation, Layouts, Forms | Added a `LeftDrawer` (Home / Add Project), `ProjectFormPage` with validated `TextFormField`s and a category dropdown, a dialog showing the submitted data, `Navigator.push` from the Add Project card, and split files into `screens/` and `widgets/` |
+| Assignment 8 | Navigation, Layouts, Forms | Added `EducationFormPage` (institution, degree dropdown, field of study, start/end dates with `showDatePicker`, "currently studying" checkbox, optional GPA and website) with validation and a summary `AlertDialog`; an **Add Education** action card and drawer entry; `ItemHomepage.destination` so cards navigate without if-else on names; drawer navigation that keeps Home as the root route |
 
 ---
 
@@ -124,6 +126,43 @@ lib/
    - changing an `enum` into a regular class or the reverse
 
    These need a **hot restart**. A **full restart** is needed for native or platform changes: editing `pubspec.yaml` to add plugins, changing Android or iOS files (Gradle, `AndroidManifest.xml`, `Info.plist`), or changing assets. Hot reload and hot restart also only work in debug mode, not in profile or release builds.
+
+---
+
+### Assignment 8
+
+1. **`Navigator.push()` vs `pushReplacement()` vs `pop()`**
+
+   Flutter's `Navigator` keeps the pages as a stack of routes.
+   - `push()` puts a new route **on top** of the current one. The old page stays underneath, so Back (or `pop()`) returns to it.
+   - `pushReplacement()` pushes the new route and **removes the current one** at the same time. Back skips the replaced page.
+   - `pop()` removes the **top** route and returns to the page below it. It can also return a value to the page that pushed it. It also closes things that live on top of a route, such as a dialog (the **OK** button in the summary dialog uses `Navigator.pop(context)`) or an open drawer.
+
+   The **Add Education** action card opens the form with `Navigator.push()`. `ItemCard` reads the card's `destination` builder and pushes it, so the home screen stays below and the system Back button returns to it.
+
+   The **Home** option in the drawer calls `Navigator.popUntil(context, (route) => route.isFirst)`. It pops every route above the first one, including the open drawer, until only the original `MyHomePage` is left. Tutorial 09 used `pushReplacement(MyHomePage())`, but that builds a *second* home on top of the first when the form was opened with `push()`, so Back would show Home again. With `popUntil` there is always exactly one home at the bottom of the stack. The form entries in the drawer use `push()` when opened from Home and `pushReplacement()` when opened from another form, so forms never pile up.
+
+2. **Consistent page structure with `Scaffold`, `AppBar` and `Drawer`**
+
+   Every page (`MyHomePage`, `ProjectFormPage`, `EducationFormPage`) returns the same skeleton: a `Scaffold` with an `appBar`, `drawer: const LeftDrawer()` and a `body`. The `Scaffold` gives each page the same slots, so the title bar is always at the top, the hamburger button that opens the drawer is always in the same place, and only the `body` changes. Because `LeftDrawer` is one widget in `lib/widgets/` reused by all pages, adding the **Add Education** entry once made it appear everywhere.
+
+   Colours come from the theme set once in `main.dart` (`ColorScheme.fromSeed(seedColor: Colors.indigo)`). For example, `Theme.of(context).colorScheme.primary` is used for the home `AppBar` background, the Education form `AppBar` background, and the Education form's **Save** button. All three use white text and icons on top. The drawer header and the Project form use the matching `Colors.indigo`.
+
+3. **Form layout and behaviour when space is limited**
+
+   The form is a single column of fields, one per row, which suits a narrow phone screen and reads top to bottom in the order you would fill it in. Each field uses a label and an `OutlineInputBorder`, so it stays clear what the field is after text is typed in. The fields that are fixed choices use input widgets that prevent typing mistakes: a `DropdownButtonFormField` for the degree, `showDatePicker()` behind read-only date fields, and a `CheckboxListTile` for "currently studying". Ticking that checkbox hides the End Date field, since it no longer applies.
+
+   - `Padding(EdgeInsets.all(8))` around every field keeps them apart, so the error text under a field doesn't collide with the next one and tap targets stay separate.
+   - `SingleChildScrollView` wraps the `Column`. When the keyboard opens, the `Scaffold` shrinks the body (`resizeToAvoidBottomInset`), and on short screens the fields are taller than the viewport. Instead of overflowing, the form scrolls, so every field and the **Save** button can still be reached.
+   - The summary dialog's content is also wrapped in a `SingleChildScrollView`, so long values don't overflow the dialog.
+
+4. **`GlobalKey<FormState>`, `validator` and `validate()`**
+
+   - `GlobalKey<FormState>` (`_formKey`) is attached to the `Form`. It lets the **Save** button's `onPressed` reach the form's state, even though the button is not the form itself.
+   - Each `TextFormField` / `DropdownButtonFormField` has a `validator`: a function that receives the current value and returns `null` if it is valid or an error string if it is not.
+   - `_formKey.currentState!.validate()` runs **every** field's validator, rebuilds the fields so each error message appears under its own field, and returns `true` only if all of them passed. The summary dialog is shown only in that case.
+
+   **Example:** the form rejects the GPA `4.5` with "GPA must be between 0.00 and 4.00." It also rejects an institution name made only of spaces, `"   "` (the validator checks `value.trim().isEmpty`). The GPA field uses `TextInputType.numberWithOptions(decimal: true)`, but a keyboard type is only a *hint* to the on-screen keyboard. It still accepts `4.5`, `3..2`, or pasted text, and on Chrome/desktop a physical keyboard ignores it completely. Similarly, `TextInputType.url` doesn't make `ui.ac.id` a valid `http(s)://` URL, and a date picker guarantees a real date but not that the end date comes after the start date. Rules about meaning, such as ranges, formats and the order between fields, can only be enforced by a validator.
 
 ---
 
