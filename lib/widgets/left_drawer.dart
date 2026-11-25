@@ -1,12 +1,19 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/screens/education_form.dart';
+import 'package:myportofolio_mobile/screens/login_screen.dart';
 import 'package:myportofolio_mobile/screens/project_form.dart';
+import 'package:myportofolio_mobile/screens/project_list_screen.dart';
+import 'package:myportofolio_mobile/services/auth_state.dart';
+import 'package:myportofolio_mobile/widgets/auth_guard.dart';
+import 'package:provider/provider.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final isLoggedIn = context.watch<AuthState>().isLoggedIn;
+
     return Drawer(
       child: ListView(
         children: [
@@ -42,15 +49,52 @@ class LeftDrawer extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.folder_outlined),
+            title: const Text('View Projects'),
+            onTap: () => _openPage(context, const ProjectListScreen()),
+          ),
+          ListTile(
             leading: const Icon(Icons.add_circle_outline),
             title: const Text('Add Project'),
-            onTap: () => _openPage(context, const ProjectFormPage()),
+            onTap: () async {
+              if (await ensureLoggedIn(context) && context.mounted) {
+                _openPage(context, const ProjectFormPage());
+              }
+            },
           ),
           ListTile(
             leading: const Icon(Icons.school_outlined),
             title: const Text('Add Education'),
             onTap: () => _openPage(context, const EducationFormPage()),
           ),
+          if (isLoggedIn)
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () async {
+                final messenger = ScaffoldMessenger.of(context);
+                final auth = context.read<AuthState>();
+                Navigator.pop(context);
+                await auth.logout();
+                messenger
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(
+                    const SnackBar(content: Text('You have logged out.')),
+                  );
+              },
+            )
+          else
+            ListTile(
+              leading: const Icon(Icons.login),
+              title: const Text('Login'),
+              onTap: () {
+                final navigator = Navigator.of(context);
+                navigator.pop();
+                navigator.push<bool>(
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                );
+              },
+            ),
         ],
       ),
     );

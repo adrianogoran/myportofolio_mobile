@@ -44,5 +44,8 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Generated json_serializable files
+*.g.dart
+
 # Widget Preview related
 .widget_preview/

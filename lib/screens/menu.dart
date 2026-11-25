@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/screens/education_form.dart';
 import 'package:myportofolio_mobile/screens/project_form.dart';
+import 'package:myportofolio_mobile/screens/project_list_screen.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
 import 'package:myportofolio_mobile/widgets/project_card.dart';
 
@@ -12,12 +13,18 @@ class MyHomePage extends StatelessWidget {
   final String kelas = "PBP KKI";
 
   final List<ItemHomepage> items = [
-    ItemHomepage("View Projects", Icons.folder, Colors.blue),
+    ItemHomepage(
+      "View Projects",
+      Icons.folder,
+      Colors.blue,
+      destination: (context) => const ProjectListScreen(),
+    ),
     ItemHomepage(
       "Add Project",
       Icons.add_circle,
       Colors.green,
       destination: (context) => const ProjectFormPage(),
+      requiresLogin: true,
     ),
     ItemHomepage(
       "Add Education",
@@ -25,7 +32,7 @@ class MyHomePage extends StatelessWidget {
       Colors.purple,
       destination: (context) => const EducationFormPage(),
     ),
-    ItemHomepage("Logout", Icons.logout, Colors.red),
+    ItemHomepage("Logout", Icons.logout, Colors.red, isLogout: true),
   ];
 
   @override
@@ -133,5 +140,18 @@ class ItemHomepage {
   /// tapped. `null` means the card only shows a SnackBar.
   final WidgetBuilder? destination;
 
-  ItemHomepage(this.name, this.icon, this.color, {this.destination});
+  /// Whether the user must log in before [destination] opens.
+  final bool requiresLogin;
+
+  /// Whether tapping the card ends the current session.
+  final bool isLogout;
+
+  ItemHomepage(
+    this.name,
+    this.icon,
+    this.color, {
+    this.destination,
+    this.requiresLogin = false,
+    this.isLogout = false,
+  });
 }
